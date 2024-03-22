@@ -16,17 +16,17 @@ app.use(cors()) //Con esto hacemos que cualquier origen pueda acceder a mi API, 
 
 let notes=[
     {
-        'id': '1',
+        'id': 1,
         'content': 'HTML is easy',
         'important': true
     },
     {
-        'id': '2',
+        'id': 2,
         'content': 'Browser can execute only JavaScript',
         'important': false
     },
     {
-        'id': '3',
+        'id': 3,
         'content': 'GET and POST are the most important methods of HTTP protocol',
         'important': true
     }
@@ -44,7 +44,7 @@ app.get('/api/notes', (request,response)=>{ //Ruta de todas las notas
 app.get('/api/notes/:id', (request,response)=>{ //Ruta para que nos devuelva la nota por id, con el parámetro :id los : significan el parámetro
     const id=Number(request.params.id) //Guardamos el parámetro de nuestra ruta en id, lo pasamos a número ya que por defecto un parámetro de nuestra ruta/url es string
 
-    const note=find(note=>note.id === id) //Guardamos en note la nota que queramos recibir al poner la id en nuestra ruta
+    const note=notes.find(note=>note.id === id) //Guardamos en note la nota que queramos recibir al poner la id en nuestra ruta
     
     if (note) { //Si existe la nota
         response.json(note) //Devolvemos la nota guardada
