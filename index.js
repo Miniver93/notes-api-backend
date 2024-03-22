@@ -14,6 +14,9 @@ app.use(logger) //Para más información de este Middleware, ve al archivo logge
 
 app.use(cors()) //Con esto hacemos que cualquier origen pueda acceder a mi API, puerto en localhost en mi caso
 
+app.use(express.static('dist')) //Con esto esto añadiendo mi front-end a mi backend, al hacer npm run build en mi frontend, hice una carpeta dist, que lueg copie con un comando desde el frontend aquí al backend, que contiene mi front-end
+
+
 let notes=[
     {
         'id': 1,
