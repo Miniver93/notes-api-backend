@@ -92,7 +92,8 @@ app.use((request,response)=>{ //Esta sería la forma más razonable de hacer un 
     response.status(404).send('<h1>Error 404</h1>')
 })
 
-const PORT=3001
+// eslint-disable-next-line no-undef
+const PORT= process.env.PORT || 3001
 app.listen(PORT, ()=>{ //Este servidor a diferencia de http, es asíncrono, por lo que tengo que pasarle un callback indicándole que cuando termine de levantarse, me corra este console.log
     console.log('Server running on port 3001')
 })
