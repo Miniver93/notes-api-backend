@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@sentry/node": "^7.108.0",
+    "@sentry/profiling-node": "^7.108.0",
     "axios": "^1.6.8",
     "cors": "2.8.5",
     "dotenv": "16.4.5",

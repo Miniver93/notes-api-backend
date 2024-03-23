@@ -11,6 +11,10 @@ mongoose.connect(connectionString)
         console.error(err)
     })
 
+//Con esto estoy diciendo de que si hay un error que no se ha capturado, se cierre la conexión de mongo
+process.on('uncaughtException', () => {
+    mongoose.disconnect()
+})
 
 
 

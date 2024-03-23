@@ -1,19 +1,38 @@
 require('dotenv').config() //Para que no de error, tengo que iniciar la dependencia dotenv con el método config. Esto siempre lo tenemos que iniciar lo primero del todo, esto por defecto buscará el archivo .env
 require('./mongo.js') //Como no voy a usar ninguna variable y lo único que voy a hacer es conectarme a la base de datos, lo que hará esto es añadir el módulo ejecutándolo sin yo hacer nada más
 const Sentry = require('@sentry/node')
-const Tracing = require('@sentry/tracing')
+const { nodeProfilingIntegration } = require('@sentry/profiling-node')
 
-const Notes = require('./models/Notes.js')
+const Note = require('./models/Note.js')
 
 const express=require('express')
 const cors=require('cors')
 
-
-
-
-
-
 const app=express() //Con esto creo un servidor express, es un framework que me permite hacer servidores sencillamente
+
+
+Sentry.init({
+    dsn: 'https://df6703aee49105d5e2e13f7daa2f8a65@o4506962035998720.ingest.us.sentry.io/4506962039341056',
+    integrations: [
+        // enable HTTP calls tracing
+        new Sentry.Integrations.Http({ tracing: true }),
+        // enable Express.js middleware tracing
+        new Sentry.Integrations.Express({ app }),
+        nodeProfilingIntegration(),
+    ],
+    // Performance Monitoring
+    tracesSampleRate: 1.0, //  Capture 100% of the transactions
+    // Set sampling rate for profiling - this is relative to tracesSampleRate
+    profilesSampleRate: 1.0,
+})
+
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler())
+
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler())
+
+
 
 app.use(express.json()) //Esto es un middleweare que se utiliza para analizar el cuerpo de las solicitudes http entrantes con formate JSON. Esto es especialmente útil cuando se envían datos en el cuerpo de una solicitud POST o PUT en formate JSON, ya que permite acceder a estos datos fácilmente en las rutas definidas en la aplicación Express
 
@@ -23,6 +42,9 @@ app.use(express.json()) //Esto es un middleweare que se utiliza para analizar el
 //Tengo que usar el middleware cors
 
 app.use(cors()) //Con esto hacemos que cualquier origen pueda acceder a mi API, puerto en localhost en mi caso
+
+//Para añadir añadir archivos estáticos como imagenes, tengo que usar un middleware
+app.use('/images', express.static('images'))
 
 app.use(express.static('dist')) //Con esto esto añadiendo mi front-end a mi backend, al hacer npm run build en mi frontend, hice una carpeta dist, que lueg copie con un comando desde el frontend aquí al backend, que contiene mi front-end
 
@@ -35,7 +57,7 @@ app.get('/', (request,response)=>{
 })
 
 app.get('/api/notes', (request,response)=>{ //Ruta de todas las notas
-    Notes.find({}) //Con esto le estoy diciendo que busque en la colección de notas de mi db todos los objetos y me los devuelva en formato json
+    Note.find({}) //Con esto le estoy diciendo que busque en la colección de notas de mi db todos los objetos y me los devuelva en formato json
         .then(notes=>{
             response.json(notes)
         })
@@ -49,13 +71,11 @@ app.get('/api/notes/:id', (request,response, next)=>{ //Ruta para que nos devuel
     const {id} = request.params //Ahora como nuestra id es un string, le quitamos el parse a number
 
     
-    Notes.findById(id)
+    Note.findById(id)
         .then(note=>{
-            if(note){
-                return response.json(note)
-            }else{
-                response.status(404).end()
-            }
+            //Puedo ponerlo con return o sin return, no cambia el funcionamiento, pero. Si lo pongo con return, si se ejecuta mi devolución de llamada, dejará de ejecutarse el código y no llamará al catch, si lo pongo sin retún, seguirá ejecutandose el código y llamará al catch si hay un error
+            return note ? response.json(note) : response.status(404).end
+
         })
         .catch(err=>{
             next(err) //Con esto le estamos diciendo que vaya al siguiente middleware con el error
@@ -79,7 +99,7 @@ app.delete('/api/notes/:id', (request,response, next)=>{
     const {id}=request.params
     
     
-    Notes.findByIdAndDelete(id)
+    Note.findByIdAndDelete(id)
         .then(result=>{
             response.send({message:'Note has been deleted'}).end()
             
@@ -95,7 +115,7 @@ app.put('/api/notes/:id', (request, response, next)=>{
     const note=request.body
 
     //Aquí cuando hacemos un findByIdAndUptade, lo que nos devuelve es lo que ha encontrado por id, es decir, el objeto que está en nuestra db. Si queremos recuperar el objeto que acabamos de actualizar, debemos de decirle al método que nos devuelva el nuevo
-    Notes.findByIdAndUpdate(id, note, { new: true })
+    Note.findByIdAndUpdate(id, note, { new: true })
         .then(result=>{
             response.json(result)
         })
@@ -106,7 +126,7 @@ app.post('/api/notes', (request,response)=>{ //Para hacer un post tengo que impo
     const note=request.body //Aquí le estamos pasando a note, la nota que queremos crear nueva, que está en el archivo post_note.rest
 
     //Aquí creamos la nueva nota pasándole los datos que obtenemos del post, que los cogemos de la variable note
-    const newNote = new Notes({
+    const newNote = new Note({
         content: note.content,
         date: new Date(),
         important: typeof note.important !== 'undefined' ? note.important : false //Aquí le estamos diciendo que, si el objeto que creamos no tiene important, que este sea false y si contiene important, pues que se agregue
@@ -147,7 +167,11 @@ app.post('/api/notes', (request,response)=>{ //Para hacer un post tengo que impo
     
 })
 
+
 app.use(require('./middleware/notFound.js'))
+
+// The error handler must be registered before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler())
 
 app.use(require('./middleware/handleError.js'))
 
