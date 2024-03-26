@@ -56,12 +56,16 @@ app.get('/', (request,response)=>{
 
 })
 
-app.get('/api/notes', (request,response)=>{ //Ruta de todas las notas
-    Note.find({}) //Con esto le estoy diciendo que busque en la colección de notas de mi db todos los objetos y me los devuelva en formato json
-        .then(notes=>{
-            response.json(notes)
-        })
+app.get('/api/notes', async (request,response)=>{ //Ruta de todas las notas
+    const notes = await Note.find({}) 
+    response.json(notes)
     
+    
+    
+    // Note.find({}) //Con esto le estoy diciendo que busque en la colección de notas de mi db todos los objetos y me los devuelva en formato json
+    //     .then(notes=>{
+    //         response.json(notes)
+    //     })
 })
 
 app.get('/api/notes/:id', (request,response, next)=>{ //Ruta para que nos devuelva la nota por id, con el parámetro :id los : significan el parámetro
@@ -70,6 +74,13 @@ app.get('/api/notes/:id', (request,response, next)=>{ //Ruta para que nos devuel
     // Extraer el parámetro id del objeto params de la solicitud
     const {id} = request.params //Ahora como nuestra id es un string, le quitamos el parse a number
 
+
+    // const note = await Note.findById(id)
+    // try {
+    //     return note ? response.json(note) : response.status(404).end()
+    // } catch (error) {
+    //     next(error)
+    // }
     
     Note.findById(id)
         .then(note=>{
@@ -94,17 +105,27 @@ app.get('/api/notes/:id', (request,response, next)=>{ //Ruta para que nos devuel
     // }
 })
 
-app.delete('/api/notes/:id', (request,response, next)=>{
+app.delete('/api/notes/:id', async (request,response, next)=>{
     // const id=Number(request.params.id)
     const {id}=request.params
+
+    try {
+        await Note.findByIdAndDelete(id)
+        response.send( { message: 'Note has been deleted'}).end()
+    } catch (error) {
+        next(error)
+    }
     
-    
-    Note.findByIdAndDelete(id)
-        .then(result=>{
-            response.send({message:'Note has been deleted'}).end()
+
+    // Note.findByIdAndDelete(id)
+    //     .then(result=>{
+    //         response.send({message:'Note has been deleted'}).end()
             
-        })
-        .catch(err=>next(err))
+    //     })
+    //     .catch(err=>next(err))
+
+
+
     // notes= notes.filter(note=>note.id !== id) //Aquí se guardarán todas las notas excepto la que estoy borrando
     
     // response.status(204).end() //Dame una respuesta de 204 que significa que no hay contenido
@@ -122,24 +143,49 @@ app.put('/api/notes/:id', (request, response, next)=>{
         .catch(err=>next(err))
 })
 
-app.post('/api/notes', (request,response,next)=>{ //Para hacer un post tengo que importar un modulo para la app
+app.post('/api/notes', async (request,response,next)=>{ //Para hacer un post tengo que importar un modulo para la app
     const note=request.body //Aquí le estamos pasando a note, la nota que queremos crear nueva, que está en el archivo post_note.rest
 
-    //Aquí creamos la nueva nota pasándole los datos que obtenemos del post, que los cogemos de la variable note
+    if(!note){
+        return response.status(404).json({
+            error: 'required "content" field is missing'
+        })
+    }
+
     const newNote = new Note({
         content: note.content,
         date: new Date(),
-        important: typeof note.important !== 'undefined' ? note.important : false //Aquí le estamos diciendo que, si el objeto que creamos no tiene important, que este sea false y si contiene important, pues que se agregue
+        important: typeof note.important !== 'undefined' ? note.important : false
     })
 
-    //Guardamos la nota en la base de datos con save y como nos devuelve una promesa, recuperamos la nota
-    newNote.save()
-        .then(savedNote=>{
-            response.json(savedNote) //Nos devuelve la nota de la base de datos ya creada
-        })
-        .catch(err=>{
-            next(err)
-        })
+    try {
+        const savedNote = await newNote.save()
+        response.status(201).json(savedNote)
+    } catch (error) {
+        next(error)
+    }
+
+    // if(!note){
+    //     return response.status(404).json({
+    //         error: 'required "content" field is missing'
+    //     })
+    // }
+
+    // //Aquí creamos la nueva nota pasándole los datos que obtenemos del post, que los cogemos de la variable note
+    // const newNote = new Note({
+    //     content: note.content,
+    //     date: new Date(),
+    //     important: typeof note.important !== 'undefined' ? note.important : false //Aquí le estamos diciendo que, si el objeto que creamos no tiene important, que este sea false y si contiene important, pues que se agregue
+    // })
+
+    // //Guardamos la nota en la base de datos con save y como nos devuelve una promesa, recuperamos la nota
+    // newNote.save()
+    //     .then(savedNote=>{
+    //         response.json(savedNote) //Nos devuelve la nota de la base de datos ya creada
+    //     })
+    //     .catch(err=>{
+    //         next(err)
+    //     })
     
 
     // //Si quiero hacer post de una nota vacia o no hay contenido mandame un error en formato json
