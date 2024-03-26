@@ -122,7 +122,7 @@ app.put('/api/notes/:id', (request, response, next)=>{
         .catch(err=>next(err))
 })
 
-app.post('/api/notes', (request,response)=>{ //Para hacer un post tengo que importar un modulo para la app
+app.post('/api/notes', (request,response,next)=>{ //Para hacer un post tengo que importar un modulo para la app
     const note=request.body //Aquí le estamos pasando a note, la nota que queremos crear nueva, que está en el archivo post_note.rest
 
     //Aquí creamos la nueva nota pasándole los datos que obtenemos del post, que los cogemos de la variable note
@@ -138,7 +138,7 @@ app.post('/api/notes', (request,response)=>{ //Para hacer un post tengo que impo
             response.json(savedNote) //Nos devuelve la nota de la base de datos ya creada
         })
         .catch(err=>{
-            console.error(err)
+            next(err)
         })
     
 
@@ -179,6 +179,9 @@ app.use(require('./middleware/handleError.js'))
 
 // eslint-disable-next-line no-undef
 const PORT= process.env.PORT
-app.listen(PORT, ()=>{ //Este servidor a diferencia de http, es asíncrono, por lo que tengo que pasarle un callback indicándole que cuando termine de levantarse, me corra este console.log
+//app.listen me devuelve un objeto server que representa el servidor http creado, que despues sirve para hacer operaciones adicionales, como cerrarlo después
+const server = app.listen(PORT, ()=>{ //Este servidor a diferencia de http, es asíncrono, por lo que tengo que pasarle un callback indicándole que cuando termine de levantarse, me corra este console.log
     console.log('Server running on port 3001')
 })
+
+module.exports = {app, server} //Aquí estoy exportando tanto la aplicación express como el servidor http

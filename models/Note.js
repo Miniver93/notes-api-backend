@@ -3,7 +3,10 @@ const mongoose=require('mongoose')
 //Al ser una clase Schema, tengo que crear un objeto de esa clase.
 //El schema contendrá el esquema de mi database, como tienen que estar definidas las propiedades dentro de mi db
 const noteScheema= new mongoose.Schema({ 
-    content: String,
+    content: {
+        type: String,
+        required:true
+    },
     date: Date,
     important: Boolean
 })

@@ -1,24 +1,31 @@
 {
   "dependencies": {
-    "@sentry/node": "^7.108.0",
-    "@sentry/profiling-node": "^7.108.0",
-    "axios": "^1.6.8",
+    "@sentry/node": "7.108.0",
+    "@sentry/profiling-node": "7.108.0",
+    "axios": "1.6.8",
     "cors": "2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "16.4.5",
     "express": "4.19.0",
     "mongoose": "8.2.3"
   },
   "devDependencies": {
     "eslint": "8.57.0",
-    "nodemon": "3.1.0"
+    "jest": "29.7.0",
+    "nodemon": "3.1.0",
+    "supertest": "^6.3.4"
   },
   "name": "servidorconexpress",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "start": "cross-env NODE_ENV=production node index.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --silent tests/notes.test.js",
+    "test:watch": "npm run test -- --watch"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "author": "",
   "license": "ISC",

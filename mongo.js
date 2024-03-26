@@ -1,7 +1,10 @@
 /* eslint-disable no-undef */
 const mongoose=require('mongoose')
 
-const connectionString = process.env.MONGO_DB_URI //Esto está en el archivo env
+const {MONGO_DB_URI, MONGO_DB_URI_TEST, NODE_ENV} = process.env //Guardo todas mis variables de entorno 
+
+
+const connectionString = NODE_ENV === 'test' ? MONGO_DB_URI_TEST : MONGO_DB_URI //Aquí cojo una db según el entorno de desarrollo que este ejecutando en ese momento
 
 //Conexión a mongoDB
 mongoose.connect(connectionString)
