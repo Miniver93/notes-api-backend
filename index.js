@@ -5,6 +5,7 @@ const { nodeProfilingIntegration } = require('@sentry/profiling-node')
 
 const usersRouter = require('./controllers/users')
 const notesRouter = require('./controllers/notes.js')
+const loginRouter = require('./controllers/login.js')
 
 const express=require('express')
 const cors=require('cors')
@@ -61,6 +62,7 @@ app.get('/', (request,response)=>{
 
 app.use('/api/users', usersRouter) //Con esto estoy diciendo que mi aplicación use el controlador de users
 app.use('/api/notes', notesRouter) //Con esto estoy diciendo que mi aplicación use el controlador de users
+app.use('/api/login', loginRouter)
 
 app.use(require('./middleware/notFound.js'))
 

@@ -1,6 +1,8 @@
+/* eslint-disable no-undef */
 const notesRouter = require('express').Router()
 const Note = require('../models/Note')
 const User = require('../models/User')
+const userExtractor = require('../middleware/userExtractor')
 
 notesRouter.get('/', async (request,response)=>{ //Ruta de todas las notas
     const notes = await Note.find({}) 
@@ -51,7 +53,8 @@ notesRouter.get('/:id', (request,response, next)=>{ //Ruta para que nos devuelva
     // }
 })
 
-notesRouter.delete('/:id', async (request,response, next)=>{
+//El userExtractor es el token de usuario, si tienes el token de usuario puedes utilizar estas rutas, si no no
+notesRouter.delete('/:id', userExtractor, async (request,response, next)=>{
     // const id=Number(request.params.id)
     const {id}=request.params
 
@@ -77,7 +80,7 @@ notesRouter.delete('/:id', async (request,response, next)=>{
     // response.status(204).end() //Dame una respuesta de 204 que significa que no hay contenido
 })
 
-notesRouter.put('/:id', (request, response, next)=>{
+notesRouter.put('/:id', userExtractor, (request, response, next)=>{
     const {id}=request.params
     const note=request.body
 
@@ -89,9 +92,12 @@ notesRouter.put('/:id', (request, response, next)=>{
         .catch(err=>next(err))
 })
 
-notesRouter.post('/', async (request,response,next)=>{ //Para hacer un post tengo que importar un modulo para la notesRouter
-    const { content, important = false, userId } = request.body 
+//Llamamos a nuestro middleware privado antes de nada
+notesRouter.post('/', userExtractor, async (request,response,next)=>{ //Para hacer un post tengo que importar un modulo para la notesRouter
+    const { content, important = false} = request.body 
 
+    //Sacar userId de request
+    const {userId} = request //Ahora nuestra request tendrá userId que la hemos añadido en nuestro middleware userExtractor
     //Aquí busco la id del usuario de la nota que quiero crear y lo almaceno
     const user = await User.findById(userId)
 

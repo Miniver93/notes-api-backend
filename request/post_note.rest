@@ -1,10 +1,10 @@
 POST http://localhost:3001/api/notes HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MDYwYTBiZTAwOGQ2ZDNlMmNhMDQ3NCIsInVzZXJuYW1lIjoiRmRlcmVzNzgiLCJpYXQiOjE3MTE3MzEwMTUsImV4cCI6MTcxMjMzNTgxNX0.pvwjm0GKpD5VuLbZQpgqOKbpRACb0a4qz7tYRfhD77s
 
 {
-        "content": "Mi primera nota",
-        "important": true,
-        "userId": "66060a0be008d6d3e2ca0474"
+        "content": "Probamos los cambios de nuestro middleware userExtractor",
+        "important": true
 }
 
 
