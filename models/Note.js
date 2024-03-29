@@ -1,18 +1,25 @@
-const mongoose=require('mongoose')
+const {Schema, model} = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 //Al ser una clase Schema, tengo que crear un objeto de esa clase.
 //El schema contendrá el esquema de mi database, como tienen que estar definidas las propiedades dentro de mi db
-const noteScheema= new mongoose.Schema({ 
+const noteSchema= new Schema({ 
     content: {
         type: String,
         required:true
     },
     date: Date,
-    important: Boolean
+    important: Boolean,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }
 })
 
+noteSchema.plugin(uniqueValidator)
+
 //Aquí le estoy dando una configuración al Json, para que a la hora que me devuelva las notas, me las devuelva como yo quiero
-noteScheema.set('toJSON', {
+noteSchema.set('toJSON', {
     transform: (document, returnedObject)=>{ //ReturnedObject sería las notas que estoy recuperando
         returnedObject.id = returnedObject._id //Aquí estoy diciendole que me devuelva mi json con un parámetro llamado id, que lo cojo de _id
         delete returnedObject.__v
@@ -25,7 +32,7 @@ noteScheema.set('toJSON', {
 --------------IMPORTANTE-----------------------------
 Esto nos servirá solo a nivel de aplicación, para que creemos notas desde aquí con un esquema predefinido y al trabajar desde aquí que no nos permita poner lo que nos de la gana en cada parámetro, por ejemplo en content poner un booleano o un int.
 Pero si añadimos una nota desde un gui de mongo, por ejemplo en studio 3T, podremos crear la nota con el tipo que a nosotros nos de la gana, ejemplo: content: array[]*/
-const Note = mongoose.model('Note', noteScheema)
+const Note = model('Note', noteSchema)
 
 
 //Esto nos sirve para buscar en la base de datos 

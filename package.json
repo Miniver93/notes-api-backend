@@ -3,11 +3,13 @@
     "@sentry/node": "7.108.0",
     "@sentry/profiling-node": "7.108.0",
     "axios": "1.6.8",
+    "bcrypt": "^5.1.1",
     "cors": "2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "16.4.5",
-    "express": "4.19.0",
-    "mongoose": "8.2.3"
+    "express": "^4.19.2",
+    "mongoose": "8.2.3",
+    "mongoose-unique-validator": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "8.57.0",
@@ -21,7 +23,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "start": "cross-env NODE_ENV=production node index.js",
-    "test": "cross-env NODE_ENV=test jest --verbose --silent tests/notes.test.js",
+    "test": "cross-env NODE_ENV=test jest --verbose tests/users.test.js ",
     "test:watch": "npm run test -- --watch"
   },
   "jest": {

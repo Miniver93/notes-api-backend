@@ -1,5 +1,6 @@
 const { app } = require('../index')
 const supertest = require('supertest')
+const User = require('../models/User')
 
 //Aquí se está importando la función supertest y se está creando una instancia de la API a probar. supertest es una biblioteca que permite realizar solicitudes HTTP a una aplicación Node.js sin necesidad de ejecutar un servidor real. app representa la aplicación Node.js que se desea probar.
 const api = supertest(app) 
@@ -26,8 +27,17 @@ const getAllContentFromNotes = async () =>{
     } 
 }
 
+const getAllContentFromUsers = async () => {
+    const usersDB = await User.find({})
+    const users = usersDB.map(user => user.toJSON())
+    return{
+        usersDB, users
+    }
+}
+
 module.exports = {
     initialNotes,
     api,
-    getAllContentFromNotes
+    getAllContentFromNotes,
+    getAllContentFromUsers
 }

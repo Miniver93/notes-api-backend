@@ -1,16 +1,14 @@
 /* eslint-disable no-undef */
 const mongoose = require('mongoose')
 
-const {server} = require('../index')
+const { server } = require('../index')
 const Note = require('../models/Note')
 const {initialNotes, api, getAllContentFromNotes} = require('./helpers') 
 
 
-
-
-
 //Con esto estoy diciendo que antes de ejecutar los test me borre las notas que tengo en la base de datos y me guarde las de initialNotes
 beforeEach(async () =>{
+
     await Note.deleteMany({}) //Con esto estamos borrando todas las notas que tenemos en la base de datos de notes-app-test
 
     //Esto lo hace en paralelo, más rápido pero no ordenado
@@ -65,7 +63,7 @@ describe('POST notes', () => {
         await api
             .post('/api/notes')
             .send(newNote) //Con esto estamos enviando la nota a la base de datos
-            .expect(200)
+            .expect(201)
             .expect('Content-Type', /application\/json/)
     
         const {contents, response} = await getAllContentFromNotes()
@@ -123,9 +121,6 @@ describe('DELETE note', () => {
     })
 })
 
-describe('PUT notes', () =>{
-    
-})
 
 //Con esto estoy diciendo que una vez se ejecuten todos los test, se cierre el servidor para que no se quede abierto
 afterAll(() =>{
