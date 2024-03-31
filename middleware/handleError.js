@@ -18,7 +18,7 @@ const ERROR_HANDLERS = {
 }
 
 module.exports = (error, request, response, next) =>{
-    console.error(error)
+    // console.error(error)
     const handler = 
     ERROR_HANDLERS[error.name] || ERROR_HANDLERS.defaultError
 
