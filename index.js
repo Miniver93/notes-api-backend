@@ -7,6 +7,7 @@ const usersRouter = require('./controllers/users')
 const notesRouter = require('./controllers/notes.js')
 const loginRouter = require('./controllers/login.js')
 
+
 const express=require('express')
 const cors=require('cors')
 
@@ -59,6 +60,11 @@ app.get('/', (request,response)=>{
 })
 
 
+// eslint-disable-next-line no-undef
+if(process.env.NODE_ENV === 'test'){
+    const testRouter = require('./controllers/testing.js')
+    app.use('/api/testing', testRouter)
+}
 
 app.use('/api/users', usersRouter) //Con esto estoy diciendo que mi aplicación use el controlador de users
 app.use('/api/notes', notesRouter) //Con esto estoy diciendo que mi aplicación use el controlador de users
